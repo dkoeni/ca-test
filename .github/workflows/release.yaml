@@ -31,7 +31,7 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Validate input parameters
+      - name: Validate input parameters and check user permission
         id: param_check
         run: |
           VERSION_REGEX="^v[0-9]+\.[0-9]+\.[0-9]+$"
@@ -40,6 +40,21 @@ jobs:
             echo "Invalid version format: $version . Please provide a version matching the pattern 'v[number].[number].[number]'."
             exit 1
           fi
+          
+          echo ${{ github.sender }}
+          if [[ ${{ github.sender }} != "dkoeni" ]]; then
+            echo "You have no permissons to start the release action."
+            exit 1
+          fi
+
+      - name: fail
+        run: exit 1
+
+      - name: rollback
+        if: failure()
+        run: |
+          echo "Rollback"
+          exit2
 
       - name: Checkout repository
         uses: actions/checkout@v3
