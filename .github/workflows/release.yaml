@@ -41,17 +41,17 @@ jobs:
             exit 1
           fi
           
-          echo ${{ github.sender }}
-          if [[ ${{ github.sender }} != "dkoeni" ]]; then
+          if [[ ${{ github.actor }} != "dkoeni" ]]; then
             echo "You have no permissons to start the release action."
             exit 1
           fi
 
       - name: fail
+        id: fail1
         run: exit 1
 
       - name: rollback
-        if: failure()
+        if: failure() && steps.fail1.outcome == 'failure'
         run: |
           echo "Rollback"
           exit2
