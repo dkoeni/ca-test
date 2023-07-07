@@ -51,10 +51,10 @@ jobs:
         run: exit 1
 
       - name: rollback
-        if: failure() && steps.fail1.outcome == 'failure'
+        if: failure() && steps.param_check.outcome == 'failure'
         run: |
           echo "Rollback"
-          exit2
+          exit 2
 
       - name: Checkout repository
         uses: actions/checkout@v3
