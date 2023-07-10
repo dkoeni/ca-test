@@ -46,16 +46,6 @@ jobs:
             exit 1
           fi
 
-      - name: fail
-        id: fail1
-        run: exit 1
-
-      - name: rollback
-        if: failure() && steps.param_check.outcome == 'failure'
-        run: |
-          echo "Rollback"
-          exit 2
-
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
@@ -118,6 +108,7 @@ jobs:
           git checkout $BRANCH_NAME 2>/dev/null || git checkout -b $BRANCH_NAME  # checkout branch or create new one if not exists
 
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          exit 1
 
       - name: Update version in files
         id: update_version
@@ -137,18 +128,34 @@ jobs:
           git commit --allow-empty -m '[skip-workflow]'
           git push --quiet --set-upstream origin $BRANCH_NAME
 
+      - name: "Rollback: Delete Branch"
+        if: failure() && (steps.create_release_branch.outcome == 'failure' || steps.update_version.outcome == 'failure')
+        run: |
+          git checkout main
+          git branch -d ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
+          git push origin --delete ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
+          exit 2
+
       - name: Create and merge Pull Request
         id: create_pr
         if: steps.check_version.outputs.VERSIONS_OUTDATED == 'true'
         run: |
           response=$(gh pr create -B main -H ${{ steps.create_release_branch.outputs.BRANCH_NAME }} --title 'Automated version update to version ${{ steps.var.outputs.VERSION }}' --body 'Created by Github action (release workflow)')
           number=$(echo "$response" | grep -oE '[0-9]+$')  # parse GitHub PR link to extract PR number
+          echo "PR_NUMBER=$number" >> $GITHUB_OUTPUT
+
           sleep 10
 
           # gh pr review $number --approve  # can not approve own PR
           gh pr merge $number --squash --delete-branch --body "Automated version update" --admin  # force merge since PR is not approved
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Rollback: Delete PR"
+        if: failure() && steps.create_pr.outcome == 'failure'
+        run: |
+          gh pr close ${{ steps.create_pr.outputs.PR_NUMBER }} -c "Couldn't merge PR automatically" --delete-branch
+          exit 2
 
       - name: Delete release (draft) if already exists
         id: delete_release_draft
