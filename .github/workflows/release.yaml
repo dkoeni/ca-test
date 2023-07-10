@@ -124,9 +124,8 @@ jobs:
           git add -u .
           # commit only if there was changes in the yaml files
           git diff --staged --quiet || git commit -m "Automated version update"
-          git commit --allow-empty -m '[skip-workflow]'
+          git commit --quiet --allow-empty -m '[skip-workflow]'
           git push --quiet --set-upstream origin $BRANCH_NAME
-          exit 1
 
       - name: "Rollback: Delete Branch"
         if: failure() && steps.update_version.outcome == 'failure'
@@ -134,7 +133,6 @@ jobs:
           git checkout main
           git branch -d ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
           git push origin --delete ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
-          exit 2
 
       - name: Create and merge Pull Request
         id: create_pr
@@ -144,19 +142,20 @@ jobs:
           number=$(echo "$response" | grep -oE '[0-9]+$')  # parse GitHub PR link to extract PR number
           echo "PR_NUMBER=$number" >> $GITHUB_OUTPUT
 
-          sleep 10
+          sleep 2
 
           # gh pr review $number --approve  # can not approve own PR
-          gh pr merge $number --squash --admin --delete-branch --body "Automated version update"  # force merge since PR is not approved (--admin flag)
+          gh pr merge $number --admin --merge --delete-branch --body "Automated version update"  # force merge since PR is not approved (--admin flag)
           git checkout main
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: "Rollback: Delete PR"
-        if: failure() && steps.create_pr.outcome == 'failure'
-        run: |
-          gh pr close ${{ steps.create_pr.outputs.PR_NUMBER }} -c "Couldn't merge PR automatically" --delete-branch
-          exit 2
+      # - name: "Rollback: Delete PR"
+      #   if: failure() && steps.create_pr.outcome == 'failure'
+      #   run: |
+      #     gh pr close ${{ steps.create_pr.outputs.PR_NUMBER }} -c "Couldn't merge PR automatically" --delete-branch
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete release (draft) if already exists
         id: delete_release_draft
