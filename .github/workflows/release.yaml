@@ -148,6 +148,7 @@ jobs:
 
           # gh pr review $number --approve  # can not approve own PR
           gh pr merge $number --squash --delete-branch --body "Automated version update" --admin  # force merge since PR is not approved
+          git checkout main
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -224,10 +225,11 @@ jobs:
 
           echo "RELEASE_ID=$(echo $RESPONSE | grep -o -z '\{.*\}' | jq -r '.id')" >> $GITHUB_OUTPUT
           mkdir ${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}
+          ls -al 
 
       - name: Upload artifacts
         id: upload_artifact
-        if: github.event.inputs.artifact == 'true' && hashFiles(steps.var.outputs.RELEASE_ASSETS_FOLDER) != ''
+        if: github.event.inputs.artifact == 'true' && (hashFiles(steps.var.outputs.RELEASE_ASSETS_FOLDER) != '')
         run: |
           ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }}
           REPO_NAME=${{ github.repository }}
