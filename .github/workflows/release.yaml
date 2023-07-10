@@ -226,7 +226,7 @@ jobs:
 
       - name: Upload artifacts
         id: upload_artifact
-        if: github.event.inputs.artifact == 'true'
+        if: github.event.inputs.artifact == 'true' && pathExists("${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}")
         run: |
           ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }}
           REPO_NAME=${{ github.repository }}
@@ -239,7 +239,7 @@ jobs:
 
           zip -qr $RELEASE_ASSETS_ZIP $RELEASE_ASSETS_FOLDER
 
-          RESPONSE=$(curl -sS -i -X POST \
+          RESPONSE=$(curl -sS -i -X POST \u
             -H "Authorization: Bearer $ACCESS_TOKEN" \
             -H "Content-Type: application/octet-stream" \
             "https://uploads.github.com/repos/$REPO_NAME/releases/$RELEASE_ID/assets?name=$RELEASE_ASSETS_ZIP" \
