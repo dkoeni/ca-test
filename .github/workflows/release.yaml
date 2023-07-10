@@ -124,14 +124,14 @@ jobs:
           git add -u .
           # commit only if there was changes in the yaml files
           git diff --staged --quiet || git commit -m "Automated version update"
-          git commit --quiet --allow-empty -m '[skip-workflow]'
+          # git commit --quiet --allow-empty -m '[skip-workflow]'
           git push --quiet --set-upstream origin $BRANCH_NAME
 
       - name: "Rollback: Delete Branch"
         if: failure() && steps.update_version.outcome == 'failure'
         run: |
           git checkout main
-          git branch -d ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
+          git branch -D ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
           git push origin --delete ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
 
       - name: Create and merge Pull Request
@@ -148,7 +148,7 @@ jobs:
           gh pr merge $number --admin --merge --delete-branch --body "Automated version update"  # force merge since PR is not approved (--admin flag)
           git checkout main
         env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_TOKEN: ${{ secrets.TOKEN }}
 
       # - name: "Rollback: Delete PR"
       #   if: failure() && steps.create_pr.outcome == 'failure'
