@@ -237,6 +237,9 @@ jobs:
           RELEASE_ASSETS_ZIP=$RELEASE_ASSETS_NAME.zip
           RELEASE_ASSETS_TARGZ=$RELEASE_ASSETS_NAME.tar.gz
 
+          echo $(pathExists("${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}"))
+          echo $(hashFiles("${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}"))
+
           zip -qr $RELEASE_ASSETS_ZIP $RELEASE_ASSETS_FOLDER
 
           RESPONSE=$(curl -sS -i -X POST \u
