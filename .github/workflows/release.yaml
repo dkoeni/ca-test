@@ -142,10 +142,11 @@ jobs:
           number=$(echo "$response" | grep -oE '[0-9]+$')  # parse GitHub PR link to extract PR number
           echo "PR_NUMBER=$number" >> $GITHUB_OUTPUT
 
-          sleep 10
+          sleep 2
+          git status
 
           # gh pr review $number --approve  # can not approve own PR
-          gh pr merge $number --admin --squash --delete-branch --body "Automated version update"  # force merge since PR is not approved
+          gh pr merge $number --admin --merge --delete-branch --body "Automated version update"  # force merge since PR is not approved
           git checkout main
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
