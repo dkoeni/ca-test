@@ -126,7 +126,6 @@ jobs:
           git diff --staged --quiet || git commit -m "Automated version update"
           git commit --allow-empty -m '[skip-workflow]'
           git push --quiet --set-upstream origin $BRANCH_NAME
-          exit 1
 
       - name: "Rollback: Delete Branch"
         if: failure() && steps.update_version.outcome == 'failure'
