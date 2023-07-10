@@ -225,6 +225,7 @@ jobs:
 
           echo "RELEASE_ID=$(echo $RESPONSE | grep -o -z '\{.*\}' | jq -r '.id')" >> $GITHUB_OUTPUT
           mkdir ${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}
+          touch docs/a.txt
           ls -al 
 
       - name: Upload artifacts
