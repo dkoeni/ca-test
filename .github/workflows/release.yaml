@@ -239,9 +239,9 @@ jobs:
 
           echo test
           echo ${{ hashFiles('a.txt') }}
-          echo $(hashFiles(docs/**))
-          echo $(hashFiles(/docs/**))
-          echo $(hashFiles(${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}**))
+          echo ${{ hashFiles('docs/**') }}
+          echo ${{ hashFiles('/docs/**') }}
+          echo ${{ hashFiles(steps.var.outputs.RELEASE_ASSETS_FOLDER) }}
           echo test ende
 
           zip -qr $RELEASE_ASSETS_ZIP $RELEASE_ASSETS_FOLDER
