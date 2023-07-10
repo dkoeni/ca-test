@@ -147,7 +147,7 @@ jobs:
           sleep 10
 
           # gh pr review $number --approve  # can not approve own PR
-          gh pr merge $number --squash --delete-branch --body "Automated version update" --admin  # force merge since PR is not approved
+          gh pr merge $number --squash --admin --delete-branch --body "Automated version update"  # force merge since PR is not approved (--admin flag)
           git checkout main
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
