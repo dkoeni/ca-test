@@ -134,7 +134,6 @@ jobs:
           git checkout main
           git branch -d ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
           git push origin --delete ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
-          exit
 
       - name: Create and merge Pull Request
         id: create_pr
