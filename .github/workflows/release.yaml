@@ -124,8 +124,8 @@ jobs:
           git add -u .
           # commit only if there was changes in the yaml files
           git diff --staged --quiet || git commit -m "Automated version update"
-          guiet --set-upstream origin $BRANCH_NAME commit --allow-empty -m '[skip-workflow]'
-          git push --quiet
+          git commit --allow-empty -m '[skip-workflow]'
+          git push --quiet --set-upstream origin $BRANCH_NAME
           exit 1
 
       - name: "Rollback: Delete Branch"
