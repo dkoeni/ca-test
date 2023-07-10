@@ -224,12 +224,10 @@ jobs:
           fi
 
           echo "RELEASE_ID=$(echo $RESPONSE | grep -o -z '\{.*\}' | jq -r '.id')" >> $GITHUB_OUTPUT
-          mkdir ${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}
-          touch docs/a.txt
-          ls -al 
 
       - name: Upload artifacts
         id: upload_artifact
+        # ensure assert folder exsits and not empty otherwise skip step
         if: github.event.inputs.artifact == 'true' && (hashFiles(steps.var.outputs.RELEASE_ASSETS_FOLDER) != '')
         run: |
           ACCESS_TOKEN=${{ secrets.GITHUB_TOKEN }}
@@ -243,7 +241,7 @@ jobs:
 
           zip -qr $RELEASE_ASSETS_ZIP $RELEASE_ASSETS_FOLDER
 
-          RESPONSE=$(curl -sS -i -X POST \u
+          RESPONSE=$(curl -sS -i -X POST \
             -H "Authorization: Bearer $ACCESS_TOKEN" \
             -H "Content-Type: application/octet-stream" \
             "https://uploads.github.com/repos/$REPO_NAME/releases/$RELEASE_ID/assets?name=$RELEASE_ASSETS_ZIP" \
