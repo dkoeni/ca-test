@@ -145,7 +145,7 @@ jobs:
           sleep 10
 
           # gh pr review $number --approve  # can not approve own PR
-          gh pr merge $number --squash --delete-branch --body "Automated version update" --admin  # force merge since PR is not approved
+          gh pr merge $number --admin --squash --delete-branch --body "Automated version update"  # force merge since PR is not approved
           git checkout main
         env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -154,7 +154,8 @@ jobs:
         if: failure() && steps.create_pr.outcome == 'failure'
         run: |
           gh pr close ${{ steps.create_pr.outputs.PR_NUMBER }} -c "Couldn't merge PR automatically" --delete-branch
-          exit 2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete release (draft) if already exists
         id: delete_release_draft
