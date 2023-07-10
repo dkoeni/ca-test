@@ -108,7 +108,6 @@ jobs:
           git checkout $BRANCH_NAME 2>/dev/null || git checkout -b $BRANCH_NAME  # checkout branch or create new one if not exists
 
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
-          exit 1
 
       - name: Update version in files
         id: update_version
@@ -127,9 +126,10 @@ jobs:
           git diff --staged --quiet || git commit -m "Automated version update"
           git commit --allow-empty -m '[skip-workflow]'
           git push --quiet --set-upstream origin $BRANCH_NAME
+          exit 1
 
       - name: "Rollback: Delete Branch"
-        if: failure() && (steps.create_release_branch.outcome == 'failure' || steps.update_version.outcome == 'failure')
+        if: failure() && steps.update_version.outcome == 'failure'
         run: |
           git checkout main
           git branch -d ${{ steps.create_release_branch.outputs.BRANCH_NAME }}
