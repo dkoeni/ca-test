@@ -238,7 +238,11 @@ jobs:
           RELEASE_ASSETS_TARGZ=$RELEASE_ASSETS_NAME.tar.gz
 
           echo test
-          echo $(hashFiles("${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}"))
+          echo $(hashFiles(a.txt))
+          echo $(hashFiles(docs/**))
+          echo $(hashFiles(/docs/**))
+          echo $(hashFiles(${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}**))
+          echo test ende
 
           zip -qr $RELEASE_ASSETS_ZIP $RELEASE_ASSETS_FOLDER
 
