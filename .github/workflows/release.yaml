@@ -223,6 +223,7 @@ jobs:
           fi
 
           echo "RELEASE_ID=$(echo $RESPONSE | grep -o -z '\{.*\}' | jq -r '.id')" >> $GITHUB_OUTPUT
+          mkdir ${{ steps.var.outputs.RELEASE_ASSETS_FOLDER }}
 
       - name: Upload artifacts
         id: upload_artifact
@@ -236,7 +237,7 @@ jobs:
 
           RELEASE_ASSETS_ZIP=$RELEASE_ASSETS_NAME.zip
           RELEASE_ASSETS_TARGZ=$RELEASE_ASSETS_NAME.tar.gz
-          
+
           zip -qr $RELEASE_ASSETS_ZIP $RELEASE_ASSETS_FOLDER
 
           RESPONSE=$(curl -sS -i -X POST \u
